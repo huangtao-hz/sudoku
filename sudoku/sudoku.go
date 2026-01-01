@@ -8,10 +8,8 @@ import (
 
 // Sudoku 数独类
 type Sudoku struct {
-	Items   []*Item   // 单元格
-	Steps   []string  // 解题步骤
-	Success bool      // 是否成功
-	Results []*Sudoku // 解题结果
+	Items []*Item  // 单元格
+	Steps []string // 解题步骤
 }
 
 // NewSudoku 数独类构造函数
@@ -24,7 +22,7 @@ func NewSudoku(values ...int) *Sudoku {
 	}
 	for i, value := range values {
 		if value > 0 && value <= 9 && i < 81 {
-			sudoku.SetValue(i, value, 5)
+			sudoku.SetValue(i, value, 9)
 		}
 	}
 	return sudoku
@@ -44,7 +42,7 @@ func (s *Sudoku) Clone() *Sudoku {
 
 // SetValue 设置值
 func (s *Sudoku) SetValue(pos int, value int, method int) {
-	var Methods = []string{"Row", "Column", "Grid", "Available", "Random"}
+	var Methods = []string{"行排除", "列排除", "方格排除", "可选值唯一", "随机"}
 	item := s.Items[pos]
 	item.Value = value
 	item.Available = nil
@@ -54,11 +52,11 @@ func (s *Sudoku) SetValue(pos int, value int, method int) {
 		}
 	}
 	if method < 5 {
-		s.Steps = append(s.Steps, fmt.Sprintf("%-10s:第%d行，第%d列，设为：%d", Methods[method], item.Row+1, item.Col+1, value))
+		s.Steps = append(s.Steps, fmt.Sprintf("第%d行，第%d列，设为：%d，方法：%s", item.Row+1, item.Col+1, value, Methods[method]))
 	}
 }
 
-// Remove 删除切片的元素
+// Remove 删除切片中的指定元素
 func Remove[T comparable](s []T, i T) []T {
 	l := len(s)
 	for j := range s {
@@ -72,32 +70,45 @@ func Remove[T comparable](s []T, i T) []T {
 
 // Print 打印结果
 func (s *Sudoku) Print() {
-	for xh, r := range s.Results {
-		fmt.Printf("结果：%d\n", xh)
-		for i, item := range r.Items {
-			if item.Value > 0 {
-				fmt.Print(item.Value)
-			} else {
-				fmt.Print(" ")
-			}
-			if i%9 < 8 {
-				fmt.Print(" ")
-			} else {
-				fmt.Println()
-			}
+	fmt.Println("行/列 1 2 3 4 5 6 7 8 9")
+	for i, item := range s.Items {
+		if i%9 == 0 {
+			fmt.Printf("  %d   ", i/9+1)
+		}
+		if item.Value > 0 {
+			fmt.Print(item.Value)
+		} else {
+			fmt.Print(" ")
+		}
+		if i%9 < 8 {
+			fmt.Print(" ")
+		} else {
+			fmt.Println()
 		}
 	}
+	if len(s.Steps) > 0 {
+		fmt.Println("解题步骤：")
+	}
 
+	for _, line := range s.Steps {
+		fmt.Println(line)
+	}
 }
 
-// Resolve 解决数独
-func (s *Sudoku) Resolve() (success bool) {
+// getBlankItems 获取未填充的单元格
+func (s *Sudoku) getBlankItems() []*Item {
 	items := make([]*Item, 0)
 	for _, i := range s.Items {
 		if i.Value == 0 {
 			items = append(items, i)
 		}
 	}
+	return items
+}
+
+// Resolve 解决数独
+func (s *Sudoku) Resolve() bool {
+	items := s.getBlankItems()
 	var found bool
 	for len(items) > 0 {
 		found = false
@@ -142,18 +153,16 @@ func (s *Sudoku) Resolve() (success bool) {
 			for _, value := range item.Available.ToSlice() {
 				new := s.Clone()
 				new.SetValue(item.Pos, value, 4)
-				new.Resolve()
-				if new.Success {
-					s.Results = append(s.Results, new)
-					new.Print()
+				if success := new.Resolve(); success {
+					for i := range 81 {
+						s.Items[i].Value = new.Items[i].Value
+					}
+					s.Steps = new.Steps
 					return true
 				}
 			}
-			s.Success = false
 			return false
 		}
 	}
-	s.Success = true
-	s.Results = append(s.Results, s)
 	return true
 }
