@@ -42,7 +42,7 @@ func (s *Sudoku) Clone() *Sudoku {
 
 // SetValue 设置值
 func (s *Sudoku) SetValue(pos int, value int, method int) {
-	var Methods = []string{"行排除", "列排除", "方格排除", "可选值唯一", "随机"}
+	var Methods = []string{"Row", "Column", "Grid", "Available", "Random"}
 	item := s.Items[pos]
 	item.Value = value
 	item.Available = nil
