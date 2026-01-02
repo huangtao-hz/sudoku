@@ -6,6 +6,24 @@ import (
 	mapset "github.com/deckarep/golang-set/v2"
 )
 
+// Remove 删除切片中的指定元素
+// golang 的基本功能缺失，连这个功能都需要手写
+func Remove[T comparable](s []T, i T) []T {
+	l := len(s)
+	for j := range s {
+		if s[j] == i {
+			s[j], s[l-1] = s[l-1], s[j]
+			return s[:l-1]
+		}
+	}
+	return s
+}
+
+// Collect 将同一类的值合并成切片
+func Collect[T any](values ...T) []T {
+	return values
+}
+
 // Item 数独的单元格
 type Item struct {
 	Owner                      *Sudoku
@@ -67,7 +85,7 @@ func (s *Sudoku) Clone() *Sudoku {
 
 // SetValue 设置值
 func (s *Sudoku) SetValue(pos int, value int, method int) {
-	var Methods = []string{"Row", "Column", "Grid", "Available", "Random"}
+	var Methods = Collect("Row", "Column", "Grid", "Available", "Random")
 	item := s.Items[pos]
 	item.Value = value
 	item.Available = nil
@@ -79,19 +97,6 @@ func (s *Sudoku) SetValue(pos int, value int, method int) {
 	if method < 5 {
 		s.Steps = append(s.Steps, fmt.Sprintf("第%d行，第%d列，设为：%d，方法：%s", item.Row+1, item.Col+1, value, Methods[method]))
 	}
-}
-
-// Remove 删除切片中的指定元素
-// golang 的基本功能缺失，连这个功能都需要手写
-func Remove[T comparable](s []T, i T) []T {
-	l := len(s)
-	for j := range s {
-		if s[j] == i {
-			s[j], s[l-1] = s[l-1], s[j]
-			return s[:l-1]
-		}
-	}
-	return s
 }
 
 // Print 打印结果
@@ -161,7 +166,7 @@ func (s *Sudoku) Resolve() bool {
 					grida = grida.Difference(it.Available)
 				}
 			}
-			for method, b := range []mapset.Set[int]{rowa, cola, grida} {
+			for method, b := range Collect(rowa, cola, grida) {
 				avl := b.ToSlice()
 				if len(avl) == 1 {
 					s.SetValue(item.Pos, avl[0], method)
