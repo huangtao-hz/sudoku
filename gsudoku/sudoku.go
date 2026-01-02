@@ -9,8 +9,8 @@ import (
 // Item 数独的单元格
 type Item struct {
 	Owner                      *Sudoku
-	Pos, Row, Col, Grid, Value int
-	Available                  mapset.Set[int]
+	Pos, Row, Col, Grid, Value int             // 该位置的序号、行、列、方格、值
+	Available                  mapset.Set[int] // 该位置可能的值
 }
 
 // NewItem 单元格构造函数
@@ -19,13 +19,13 @@ func NewItem(Owner *Sudoku, Pos int, Value int) *Item {
 	Row := Pos / 9
 	Col := Pos % 9
 	Grid := Row/3*3 + Col/3
-	if Value == 0 {
+	if Value == 0 { // 空值则设置可能的值，非空值不设
 		Available = mapset.NewSet(1, 2, 3, 4, 5, 6, 7, 8, 9)
 	}
 	return &Item{Owner: Owner, Pos: Pos, Row: Row, Col: Col, Grid: Grid, Value: Value, Available: Available}
 }
 
-// Print 打印单元格
+// Print 打印单元格，本函数仅在调试时使用
 func (i *Item) Print() {
 	fmt.Printf("第%d行，第%d列，值：%d，可能值：%v", i.Row, i.Col, i.Value, i.Available)
 }
@@ -41,6 +41,7 @@ func NewSudoku(values ...int) *Sudoku {
 	Items := make([]*Item, 81)
 	Steps := make([]string, 0)
 	sudoku := &Sudoku{Items: Items, Steps: Steps}
+	// 初始化每个位置的值为0
 	for i := range 81 {
 		Items[i] = NewItem(sudoku, i, 0)
 	}
@@ -81,6 +82,7 @@ func (s *Sudoku) SetValue(pos int, value int, method int) {
 }
 
 // Remove 删除切片中的指定元素
+// golang 的基本功能缺失，连这个功能都需要手写
 func Remove[T comparable](s []T, i T) []T {
 	l := len(s)
 	for j := range s {
@@ -120,14 +122,14 @@ func (s *Sudoku) Print() {
 }
 
 // getBlankItems 获取未填充的单元格
-func (s *Sudoku) getBlankItems() []*Item {
-	items := make([]*Item, 0)
+func (s *Sudoku) getBlankItems() (items []*Item) {
+	items = make([]*Item, 0)
 	for _, i := range s.Items {
 		if i.Value == 0 {
 			items = append(items, i)
 		}
 	}
-	return items
+	return
 }
 
 // Resolve 解决数独
