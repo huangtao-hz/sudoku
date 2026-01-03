@@ -32,15 +32,15 @@ type Item struct {
 }
 
 // NewItem 单元格构造函数
-func NewItem(Owner *Sudoku, Pos int, Value int) *Item {
-	var Available mapset.Set[int]
+func NewItem(Owner *Sudoku, Pos int, Value int) (item *Item) {
 	Row := Pos / 9
 	Col := Pos % 9
 	Grid := Row/3*3 + Col/3
+	item = &Item{Owner: Owner, Pos: Pos, Row: Row, Col: Col, Grid: Grid, Value: Value}
 	if Value == 0 { // 空值则设置可能的值，非空值不设
-		Available = mapset.NewSet(1, 2, 3, 4, 5, 6, 7, 8, 9)
+		item.Available = mapset.NewSet(1, 2, 3, 4, 5, 6, 7, 8, 9)
 	}
-	return &Item{Owner: Owner, Pos: Pos, Row: Row, Col: Col, Grid: Grid, Value: Value, Available: Available}
+	return
 }
 
 // Print 打印单元格，本函数仅在调试时使用
