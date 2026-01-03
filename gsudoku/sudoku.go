@@ -19,8 +19,8 @@ func Remove[T comparable](s []T, i T) []T {
 	return s
 }
 
-// Collect 将同一类的值合并成切片
-func Collect[T any](values ...T) []T {
+// Slice 将同一类的值合并成切片
+func Slice[T any](values ...T) []T {
 	return values
 }
 
@@ -85,7 +85,7 @@ func (s *Sudoku) Clone() *Sudoku {
 
 // SetValue 设置值
 func (s *Sudoku) SetValue(pos int, value int, method int) {
-	var Methods = Collect("Row", "Column", "Grid", "Available", "Random")
+	var Methods = Slice("Row", "Column", "Grid", "Available", "Random")
 	item := s.Items[pos]
 	item.Value = value
 	item.Available = nil
@@ -166,7 +166,7 @@ func (s *Sudoku) Resolve() bool {
 					grida = grida.Difference(it.Available)
 				}
 			}
-			for method, b := range Collect(rowa, cola, grida) {
+			for method, b := range Slice(rowa, cola, grida) {
 				avl := b.ToSlice()
 				if len(avl) == 1 {
 					s.SetValue(item.Pos, avl[0], method)
