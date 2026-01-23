@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-
-	mapset "github.com/deckarep/golang-set/v2"
 )
 
 // Remove 删除切片中的指定元素
@@ -27,8 +25,8 @@ func Slice[T any](values ...T) []T {
 // Item 数独的单元格
 type Item struct {
 	Owner                      *Sudoku
-	Pos, Row, Col, Grid, Value int             // 该位置的序号、行、列、方格、值
-	Available                  mapset.Set[int] // 该位置可能的值
+	Pos, Row, Col, Grid, Value int  // 该位置的序号、行、列、方格、值
+	Available                  *Set // 该位置可能的值
 }
 
 // NewItem 单元格构造函数
@@ -38,7 +36,7 @@ func NewItem(Owner *Sudoku, Pos int, Value int) (item *Item) {
 	Grid := Row/3*3 + Col/3
 	item = &Item{Owner: Owner, Pos: Pos, Row: Row, Col: Col, Grid: Grid, Value: Value}
 	if Value == 0 { // 空值则设置可能的值，非空值不设
-		item.Available = mapset.NewSet(1, 2, 3, 4, 5, 6, 7, 8, 9)
+		item.Available = NewSet(1, 2, 3, 4, 5, 6, 7, 8, 9)
 	}
 	return
 }
