@@ -19,8 +19,8 @@ func (s *Set) Add(vals ...int) {
 
 // Remove 删除元素
 func (s *Set) Remove(vals ...int) {
-	for _, i := range vals {
-		*s &^= (1 << i)
+	for _, v := range vals {
+		*s &^= (1 << v)
 	}
 }
 
@@ -37,25 +37,25 @@ func (s *Set) String() string {
 	return string(result)
 }
 
-// Difference 求减集
+// Difference 返回连个集合的减集
 func (s Set) Difference(other *Set) *Set {
 	s &^= *other
 	return &s
 }
 
-// Intersection 求交集
+// Intersection 返回两个集合的交集
 func (s Set) Intersection(other *Set) *Set {
 	s &= *other
 	return &s
 }
 
-// Union 求并集
+// Union 返回两个集合的并集
 func (s Set) Union(other *Set) *Set {
 	s |= *other
 	return &s
 }
 
-// Contains 判断是否包含
+// Contains 判断是否包含制定的值
 func (s *Set) Contains(vals ...int) bool {
 	d := NewSet(vals...)
 	return *(d.Difference(s))&-1 == 0
